@@ -23,6 +23,9 @@ $api->requestId('classjobs')->character()->classjobs(730968);
 $api->requestId('minions')->character()->minions(730968);
 $api->requestId('mounts')->character()->mounts(730968);
 
+$api->requestId('items')->database()->search();
+
+
 $responses = $api->http()->settle();
 
 
