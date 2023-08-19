@@ -40,7 +40,7 @@ trait ListTrait
     {
         $this->list = new ListView();
 
-        $resultsTotal = $this->dom->find('.pager .current_list .total')->text();
+        $resultsTotal = $this->dom->find('.db-wrapper .pager .current_list .total')->text();
 
         if (empty($resultsTotal)) {
             return;
