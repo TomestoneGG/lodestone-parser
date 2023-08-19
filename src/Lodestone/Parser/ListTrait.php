@@ -40,7 +40,7 @@ trait ListTrait
     {
         $this->list = new ListView();
 
-        $resultsTotal = $this->dom->find('.db-wrapper .pager .current_list .total')->text();
+        $resultsTotal = $this->dom->find('.db__l_main__footer .pager .current_list .total')->text();
 
         if (empty($resultsTotal)) {
             return;
@@ -48,7 +48,7 @@ trait ListTrait
 
         $this->list->Pagination->ResultsTotal = filter_var($resultsTotal, FILTER_SANITIZE_NUMBER_INT);
 
-        $currentPage = $this->dom->find('.db-wrapper .pager .current a')->text();
+        $currentPage = $this->dom->find('.db__l_main__footer .pager .current a')->text();
         $this->list->Pagination->Page = filter_var($currentPage, FILTER_SANITIZE_NUMBER_INT);
 
         // 50 results per page
