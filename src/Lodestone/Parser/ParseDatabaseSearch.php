@@ -13,14 +13,14 @@ class ParseDatabaseSearch extends ParseAbstract implements Parser
     public function handle(string $html)
     {
         // set dom
-        $this->setDom($html);
+        $this->setDom($html, false, true);
 
         // build list
         $this->setDbList();
 
         // parse list
         /** @var DomQuery $node */
-        foreach ($this->dom->find('.db-wrapper .latest_patch__major__item') as $node) {
+        foreach ($this->dom->find('.latest_patch__major__item') as $node) {
             $obj         = new Item();
 
             $obj->ID = null;
