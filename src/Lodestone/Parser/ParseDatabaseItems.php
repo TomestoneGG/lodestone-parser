@@ -41,7 +41,7 @@ class ParseDatabaseItems extends ParseAbstract implements Parser
             $itemLevelCell = $node->next();
             if ($itemLevelCell) {
                 $itemLevelText = $itemLevelCell->text();
-                $obj->ItemLevel = filter_var($itemLevelText, FILTER_SANITIZE_NUMBER_INT);
+                $obj->ItemLevel = intval(filter_var($itemLevelText, FILTER_SANITIZE_NUMBER_INT));
             }
 
             $this->list->Results[] = $obj;
