@@ -5,7 +5,7 @@ namespace Lodestone\Parser;
 use Lodestone\Entity\Database\Item;
 use Rct567\DomQuery\DomQuery;
 
-class ParseDatabaseSearch extends ParseAbstract implements Parser
+class ParseDatabaseItems extends ParseAbstract implements Parser
 {
     use HelpersTrait;
     use ListTrait;
@@ -35,6 +35,13 @@ class ParseDatabaseSearch extends ParseAbstract implements Parser
                 $results = explode('/', $href);
                 if (isset($results[5]))
                     $obj->ID = $results[5];
+            }
+
+            $obj->ItemLevel = 0;
+            $itemLevelCell = $node->next();
+            if ($itemLevelCell) {
+                $itemLevelText = $itemLevelCell->text();
+                $obj->ItemLevel = filter_var($itemLevelText, FILTER_SANITIZE_NUMBER_INT);
             }
 
             $this->list->Results[] = $obj;
