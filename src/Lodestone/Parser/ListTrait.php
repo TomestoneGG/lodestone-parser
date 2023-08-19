@@ -48,7 +48,7 @@ trait ListTrait
 
         $this->list->Pagination->ResultsTotal = filter_var($resultsTotal, FILTER_SANITIZE_NUMBER_INT);
 
-        $currentPage = $this->dom->find('.pager .current a')->text();
+        $currentPage = $this->dom->find('.db-wrapper .pager .current a')->text();
         $this->list->Pagination->Page = filter_var($currentPage, FILTER_SANITIZE_NUMBER_INT);
 
         // 50 results per page
