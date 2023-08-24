@@ -103,9 +103,6 @@ class ParseCharacter extends ParseAbstract implements Parser
 
             $this->profile->GearSet['Attributes'][] = $attr;
         }
-
-        $itemLevelText = ltrim($this->dom->find('.character__detail__avg')->text(), "0");
-        $this->profile->GearSet['ItemLevel'] = intval(filter_var($itemLevelText, FILTER_SANITIZE_NUMBER_INT));
     }
     
     /**
