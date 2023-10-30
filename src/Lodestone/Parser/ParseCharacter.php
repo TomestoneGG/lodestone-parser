@@ -162,7 +162,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             $item->Slot = $slot;
     
             // add mirage
-            $mirage = $node->find('.db-tooltip__item__mirage');
+            $mirage = $node->find('.db-tooltip__item__mirage__ic');
             if (trim($mirage->html())) {
                 $lodestoneId = $mirage->find('a')->attr('href');
                 $lodestoneId = trim(explode('/', $lodestoneId)[5]);
