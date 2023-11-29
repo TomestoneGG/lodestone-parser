@@ -40,16 +40,13 @@ class Http
         $request->userData['request_id']  = AsyncHandler::$requestId ?: Uuid::uuid4()->toString();
         $request->userData['parser']      = $parser;
 
-        $options = [
+        // perform request
+        $response = $client->request($request->method, $request->endpoint, [
             'query'     => $request->query,
             'headers'   => $request->headers,
+            'json'      => $request->json,
             'user_data' => $request->userData
-        ];
-        if ($request->json !== null)
-            $options['json'] = $request->json;
-
-        // perform request
-        $response = $client->request($request->method, $request->endpoint, $options);
+        ]);
 
         // Asynchronous: Pop the response into the async handler, this returns the number
         // it was assigned to
