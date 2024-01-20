@@ -183,7 +183,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             }
     
             // add dye
-            $dye = $node->find('.eorzeadb_tooltip_mb10 .stain, .db-tooltip__help_text .stain');
+            $dye = $node->find('.stain');
             if (trim($dye->html())) {
                 $dyeUrl  = $dye->find('a')->attr('href');
                 $dyeName = $dye->find('a')->text();
