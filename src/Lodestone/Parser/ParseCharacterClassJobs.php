@@ -89,7 +89,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         if ($fieldname == 'Elemental Level') {
             $elementalIndex = 0;
         } else {
-            $bozjanString    = trim($node->find('.character__job__exp')->text());
+            $bozjanString    = trim($node->find('.character__job__exp')->text() ?: '');
             
             if ($bozjanString) {
                 [$current, $max] = explode('/', $bozjanString);
