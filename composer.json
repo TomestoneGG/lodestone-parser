@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "php": "^7.2|^8.0",
+        "php": "^8.0",
         "symfony/css-selector": ">=3.2",
         "nesbot/carbon": "^2.10",
         "symfony/http-client": "^4.3|^5.0",
