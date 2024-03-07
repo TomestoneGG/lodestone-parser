@@ -29,7 +29,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         {
             // class name
             $name   = trim($li->find('.character__job__name')->text());
-            $master = trim($li->find('.character__job__name--meister')->text());
+            $master = trim($li->find('.character__job__name--meister')->text() ?: '');
             $name   = str_ireplace('(Limited Job)', '', $name);
             $name   = $name ?: $master;
 
@@ -83,7 +83,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         //
         $bozjan          = new ClassJobBozjan('Resistance Rank');
         $node            = $this->dom->find('.character__job__list')[0];
-        $fieldname       = trim($node->find('.character__job__name')->text());
+        $fieldname       = trim($node->find('.character__job__name')->text() ?: '');
         
         // if elemental level is the 1st one, they haven't started Bozjan
         if ($fieldname == 'Elemental Level') {
