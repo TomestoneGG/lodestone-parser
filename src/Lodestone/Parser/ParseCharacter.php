@@ -140,7 +140,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             $category   = trim(strip_tags($category));
             $catData    = explode("'", $category);
             $catName    = $catData[0];
-            $catSecond  = $catData[1] ?? null;
+            $catSecond  = $catData[1] ?? '';
             $catName    = trim(str_ireplace(['Two-handed', 'One-handed'], '', $catName));
             $catName    = ucwords(strtolower($catName));
             $item->Category = $catName;
