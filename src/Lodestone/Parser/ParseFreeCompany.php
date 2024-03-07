@@ -35,12 +35,12 @@ class ParseFreeCompany extends ParseAbstract implements Parser
 
         // all use: freecompany__text
         $fc->Active             = trim($this->dom->find('.freecompany__text')->eq(5)->text());
-        $fc->Recruitment        = trim($this->dom->find('.freecompany__recruitment')->text());
+        $fc->Recruitment        = trim($this->dom->find('.freecompany__recruitment')->text() ?: '');
         $fc->Formed             = $this->getTimestamp($this->dom->find('.freecompany__text')->eq(2));
         $fc->ActiveMemberCount  = filter_var($this->dom->find('.freecompany__text')->eq(3)->text(), FILTER_SANITIZE_NUMBER_INT);
         $fc->Rank               = filter_var($this->dom->find('.freecompany__text')->eq(4)->text(), FILTER_SANITIZE_NUMBER_INT);
 
-        $fc->Tag                = str_ireplace(['«', '»'], null, $this->dom->find('.freecompany__text__tag')->eq(1)->text());
+        $fc->Tag                = str_ireplace(['«', '»'], '', $this->dom->find('.freecompany__text__tag')->eq(1)->text());
         $fc->Slogan             = str_ireplace(["<br>", "<br/>"], "\n", $this->dom->find('p.freecompany__text__message')->text());
         $fc->Ranking['Weekly']  = filter_var($this->dom->find('.character__ranking__data th')->eq(0)->text(), FILTER_SANITIZE_NUMBER_INT);
         $fc->Ranking['Monthly'] = filter_var($this->dom->find('.character__ranking__data th')->eq(1)->text(), FILTER_SANITIZE_NUMBER_INT);

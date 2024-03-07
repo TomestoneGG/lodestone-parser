@@ -29,8 +29,8 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         {
             // class name
             $name   = trim($li->find('.character__job__name')->text());
-            $master = trim($li->find('.character__job__name--meister')->text());
-            $name   = str_ireplace('(Limited Job)', null, $name);
+            $master = trim($li->find('.character__job__name--meister')->text() ?: '');
+            $name   = str_ireplace('(Limited Job)', '', $name);
             $name   = $name ?: $master;
 
             if (empty($name)) {
@@ -64,8 +64,8 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
 
             // current exp
             [$current, $max] = explode('/', $li->find('.character__job__exp')->text());
-            $current = filter_var(trim(str_ireplace('-', null, $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
-            $max     = filter_var(trim(str_ireplace('-', null, $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+            $current = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+            $max     = filter_var(trim(str_ireplace('-', '', $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
 
             $role->ExpLevel     = $current;
             $role->ExpLevelMax  = $max;
@@ -83,17 +83,17 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         //
         $bozjan          = new ClassJobBozjan('Resistance Rank');
         $node            = $this->dom->find('.character__job__list')[0];
-        $fieldname       = trim($node->find('.character__job__name')->text());
+        $fieldname       = trim($node->find('.character__job__name')->text() ?: '');
         
         // if elemental level is the 1st one, they haven't started Bozjan
         if ($fieldname == 'Elemental Level') {
             $elementalIndex = 0;
         } else {
-            $bozjanString    = trim($node->find('.character__job__exp')->text());
+            $bozjanString    = trim($node->find('.character__job__exp')->text() ?: '');
             
             if ($bozjanString) {
                 [$current, $max] = explode('/', $bozjanString);
-                $current         = filter_var(trim(str_ireplace('-', null, $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+                $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
                 //If rank is max (25) then set current Mettle to null instead of an empty string ("")
                 if ($current == "") {
                     $current = null;
@@ -111,12 +111,12 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         $elemental       = new ClassJobEureka('Elemental Level');
         $node            = $this->dom->find('.character__job__list')[$elementalIndex];
         
-        $eurekaString    = explode('/', $node->find('.character__job__exp')->text());
-        $current         = $eurekaString[0] ?? null;
-        $max             = $eurekaString[1] ?? null;
+        $eurekaString    = explode('/', $node->find('.character__job__exp')->text() ?: '');
+        $current         = $eurekaString[0] ?? '';
+        $max             = $eurekaString[1] ?? '';
         
-        $current         = filter_var(trim(str_ireplace('-', null, $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
-        $max             = filter_var(trim(str_ireplace('-', null, $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+        $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+        $max             = filter_var(trim(str_ireplace('-', '', $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
         
         $elemental->Level        = (int)$node->find('.character__job__level')->text();
         $elemental->ExpLevel     = $current;

@@ -5,15 +5,7 @@ namespace Lodestone;
 use Lodestone\Http\AsyncHandler;
 use Lodestone\Http\Http;
 use Lodestone\Http\RequestConfig;
-use Lodestone\Api\{
-    Character,
-    FreeCompany,
-    Linkshell,
-    PvPTeam,
-    Lodestone,
-    Leaderboards,
-    DevPosts
-};
+use Lodestone\Api\{Character, Database, FreeCompany, Linkshell, PvPTeam, Lodestone, Leaderboards, DevPosts};
 
 class Api
 {
@@ -85,5 +77,10 @@ class Api
     public function leaderboards(): Leaderboards
     {
         return $this->getApiNamespace(Leaderboards::class);
+    }
+
+    public function database()
+    {
+        return $this->getApiNamespace(Database::class);
     }
 }

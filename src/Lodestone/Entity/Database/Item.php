@@ -8,4 +8,6 @@ class Item extends AbstractEntity
 {
     public $ID;
     public $Icon;
+    public $Name;
+    public $ItemLevel;
 }

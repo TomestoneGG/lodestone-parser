@@ -140,8 +140,8 @@ class ParseCharacter extends ParseAbstract implements Parser
             $category   = trim(strip_tags($category));
             $catData    = explode("'", $category);
             $catName    = $catData[0];
-            $catSecond  = $catData[1] ?? null;
-            $catName    = trim(str_ireplace(['Two-handed', 'One-handed'], null, $catName));
+            $catSecond  = $catData[1] ?? '';
+            $catName    = trim(str_ireplace(['Two-handed', 'One-handed'], '', $catName));
             $catName    = ucwords(strtolower($catName));
             $item->Category = $catName;
     
@@ -183,7 +183,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             }
     
             // add dye
-            $dye = $node->find('.eorzeadb_tooltip_mb10 .stain');
+            $dye = $node->find('.stain');
             if (trim($dye->html())) {
                 $dyeUrl  = $dye->find('a')->attr('href');
                 $dyeName = $dye->find('a')->text();
@@ -255,7 +255,7 @@ class ParseCharacter extends ParseAbstract implements Parser
         $bio = $this->dom->find('.character__selfintroduction')->html();
         $bio = str_replace(['<br>', '<br />', '<br/>'], "\n", $bio);
         $bio = html_entity_decode($bio, ENT_QUOTES, "UTF-8");
-        $bio = str_ireplace('Character Profile', null, $bio);
+        $bio = str_ireplace('Character Profile', '', $bio);
         
         if ($bio = strip_tags($bio)) {
             $this->profile->Bio = $bio;

@@ -36,6 +36,28 @@ trait ListTrait
         $this->list->Pagination->setNextPrevious();
     }
 
+    protected function setDbList()
+    {
+        $this->list = new ListView();
+
+        $resultsTotal = $this->dom->find('.db__l_main__footer .pager .current_list .total')->text();
+
+        if (empty($resultsTotal)) {
+            return;
+        }
+
+        $this->list->Pagination->ResultsTotal = filter_var($resultsTotal, FILTER_SANITIZE_NUMBER_INT);
+
+        $currentPage = $this->dom->find('.db__l_main__footer .pager .current a')->text();
+        $this->list->Pagination->Page = filter_var($currentPage, FILTER_SANITIZE_NUMBER_INT);
+
+        // 50 results per page
+        $this->list->Pagination->PageTotal = ceil($this->list->Pagination->ResultsTotal / 50.0);
+
+        // set next+prev
+        $this->list->Pagination->setNextPrevious();
+    }
+
     public function handleCharacterList()
     {
         /** @var DomQuery $node */
