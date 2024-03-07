@@ -111,7 +111,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         $elemental       = new ClassJobEureka('Elemental Level');
         $node            = $this->dom->find('.character__job__list')[$elementalIndex];
         
-        $eurekaString    = explode('/', $node->find('.character__job__exp')->text());
+        $eurekaString    = explode('/', $node->find('.character__job__exp')->text() ?: '');
         $current         = $eurekaString[0] ?? '';
         $max             = $eurekaString[1] ?? '';
         
