@@ -157,6 +157,6 @@ class ClassJobs
      */
     private static function minifyname($name)
     {
-        return trim(strtolower(str_ireplace(' ', null, $name)));
+        return trim(strtolower(str_ireplace(' ', '', $name)));
     }
 }
