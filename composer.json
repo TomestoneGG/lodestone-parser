@@ -31,8 +31,16 @@
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {
-        "psr-0": {
-            "Lodestone\\": "src/"
+        "psr-4": {
+            "Lodestone\\": "src/Lodestone"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Lodestone\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
