@@ -32,7 +32,7 @@ trait HelpersTrait
     
     public function getServerAndDc($line)
     {
-        $parts = explode(' ', $line, 2);
+        $parts = explode(' ', $line ?? '', 2);
         $server = trim($parts[0]);
         $dc = trim($parts[1] ?? '', '[]');
 
