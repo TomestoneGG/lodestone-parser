@@ -207,7 +207,7 @@ class ParseCharacter extends ParseAbstract implements Parser
                         }
                 
                         $mdetails = explode('<br>', html_entity_decode($mhtml));
-                        if (empty($mdetails[1])) {$mdetails[1] = null;}
+                        if (empty($mdetails[1])) {$mdetails[1] = '';}
                 
                         $materiaObject = new ItemSimple();
                         $materiaObject->Name  = trim(strip_tags($mdetails[0]));
