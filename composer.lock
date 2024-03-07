@@ -575,19 +575,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/TomestoneGG/DomQuery.git",
-                "reference": "5f005daefed95daaebae675bed0a049b12d4e5fd"
+                "reference": "a50558618efce2fc25f4bd7b81acd265af5bfdd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TomestoneGG/DomQuery/zipball/5f005daefed95daaebae675bed0a049b12d4e5fd",
-                "reference": "5f005daefed95daaebae675bed0a049b12d4e5fd",
+                "url": "https://api.github.com/repos/TomestoneGG/DomQuery/zipball/a50558618efce2fc25f4bd7b81acd265af5bfdd1",
+                "reference": "a50558618efce2fc25f4bd7b81acd265af5bfdd1",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-json": "*",
                 "ext-xml": "*",
-                "php": "^7.1.0|^8.0.0"
+                "php": "^8.0.0"
             },
             "require-dev": {
                 "phpstan/phpstan": "^0.12",
@@ -635,7 +635,7 @@
             "support": {
                 "source": "https://github.com/TomestoneGG/DomQuery/tree/php8"
             },
-            "time": "2024-03-07T14:10:15+00:00"
+            "time": "2024-03-07T14:31:46+00:00"
         },
         {
             "name": "symfony/css-selector",
