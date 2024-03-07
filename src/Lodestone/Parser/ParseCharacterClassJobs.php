@@ -112,8 +112,8 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         $node            = $this->dom->find('.character__job__list')[$elementalIndex];
         
         $eurekaString    = explode('/', $node->find('.character__job__exp')->text());
-        $current         = $eurekaString[0] ?? null;
-        $max             = $eurekaString[1] ?? null;
+        $current         = $eurekaString[0] ?? '';
+        $max             = $eurekaString[1] ?? '';
         
         $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
         $max             = filter_var(trim(str_ireplace('-', '', $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
