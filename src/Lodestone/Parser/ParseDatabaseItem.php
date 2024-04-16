@@ -19,7 +19,7 @@ class ParseDatabaseItem extends ParseAbstract implements Parser
         $nameNode = $this->dom->find('.db-view__item__text__name');
         $imgNode = $this->dom->find('.db-view__item__icon__item_image');
         $item->ID = null;
-        $item->Name -= $nameNode ? trim($nameNode->text()) : "";
+        $item->Name = $nameNode ? trim($nameNode->text()) : "";
         $item->Icon = $imgNode ? explode('?', $imgNode->attr('src'))[0] : null;
         $item->ItemLevel = 0;
         $itemLevelNode = $this->dom->find('.db-view__item__item_level');
