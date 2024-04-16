@@ -2,7 +2,7 @@
 
 namespace Lodestone\Api;
 
-use Lodestone\Parser\ParseCharacter;
+use Lodestone\Parser\ParseDatabaseItem;
 use Lodestone\Parser\ParseDatabaseItems;
 
 class Database extends ApiAbstract
@@ -33,7 +33,7 @@ class Database extends ApiAbstract
 
     public function item(string $id)
     {
-        return $this->handle(ParseCharacter::class, [
+        return $this->handle(ParseDatabaseItem::class, [
             'endpoint' => "/lodestone/playguide/db/item/{$id}",
         ]);
     }
