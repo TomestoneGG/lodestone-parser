@@ -229,7 +229,7 @@ class ParseCharacter extends ParseAbstract implements Parser
         // id
         $lodestoneId = $this->dom->find('#character a')->attr('href');
         $explodedLodestoneId = explode('/', $lodestoneId);
-        $this->profile->ID = trim($explodedLodestoneId[2]);
+        $this->profile->ID = trim($explodedLodestoneId[3]);
 
         // name
         $name = $this->dom->find('.frame__chara__name')->eq(0)->html();
