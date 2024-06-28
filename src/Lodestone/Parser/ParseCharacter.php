@@ -47,6 +47,8 @@ class ParseCharacter extends ParseAbstract implements Parser
      */
     private function parseProfile()
     {
+        $this->parseProfileAvatar($this->dom);
+
         $blocks = $this->dom->find('.character__profile__data__detail .character-block');
         
         /** @var DomQuery $block */
@@ -263,7 +265,15 @@ class ParseCharacter extends ParseAbstract implements Parser
     
         $this->profile->Bio = mb_convert_encoding($this->profile->Bio, 'UTF-8', 'UTF-8');
     }
-    
+
+    private function parseProfileAvatar($node)
+    {
+        // picture
+        $avatar = $node->find('#character frame__chara__face img')->attr('src');
+        $this->profile->Avatar   = $avatar;
+        $this->profile->Portrait = str_ireplace('c0_96x96', 'l0_640x873', $avatar);
+    }
+
     /**
      * @param DomQuery $node
      */
@@ -277,11 +287,6 @@ class ParseCharacter extends ParseAbstract implements Parser
         $this->profile->Race   = strip_tags(trim($race));
         $this->profile->Tribe  = strip_tags(trim($tribe));
         $this->profile->Gender = strip_tags(trim($gender)) == '♀' ? 'female' : 'male';
-        
-        // picture
-        $avatar = $node->find('img')->attr('src');
-        $this->profile->Avatar   = $avatar;
-        $this->profile->Portrait = str_ireplace('c0_96x96', 'l0_640x873', $avatar);
     }
     
     /**
