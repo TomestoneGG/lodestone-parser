@@ -47,8 +47,6 @@ class ParseCharacter extends ParseAbstract implements Parser
      */
     private function parseProfile()
     {
-        $this->parseProfileAvatar($this->dom);
-
         $blocks = $this->dom->find('.character__profile__data__detail .character-block');
         
         /** @var DomQuery $block */
@@ -228,6 +226,11 @@ class ParseCharacter extends ParseAbstract implements Parser
      */
     private function parseProfileBasic()
     {
+        // id
+        $lodestoneId = $this->dom->find('#character a')->attr('href');
+        $explodedLodestoneId = explode('/', $lodestoneId);
+        $this->profile->ID = trim($explodedLodestoneId[2]);
+
         // name
         $name = $this->dom->find('.frame__chara__name')->eq(0)->html();
         $name = trim(strip_tags($name));
@@ -247,6 +250,12 @@ class ParseCharacter extends ParseAbstract implements Parser
             $this->profile->Title = html_entity_decode(trim(strip_tags($title[0])), ENT_QUOTES, "UTF-8");
             $this->profile->TitleTop = $this->dom->find('.frame__chara .frame__chara__box p')->eq(0)->hasClass('frame__chara__title');
         }
+
+        // avatar
+        $avatar = $this->dom->find('#character .frame__chara__face img')->attr('src');
+        $this->profile->Avatar   = $avatar;
+        $this->profile->Portrait = str_ireplace('c0.jpg', 'l0.jpg', $avatar);
+
     }
     
     /**
@@ -264,14 +273,6 @@ class ParseCharacter extends ParseAbstract implements Parser
         }
     
         $this->profile->Bio = mb_convert_encoding($this->profile->Bio, 'UTF-8', 'UTF-8');
-    }
-
-    private function parseProfileAvatar($node)
-    {
-        // picture
-        $avatar = $node->find('#character frame__chara__face img')->attr('src');
-        $this->profile->Avatar   = $avatar;
-        $this->profile->Portrait = str_ireplace('c0_96x96', 'l0_640x873', $avatar);
     }
 
     /**
