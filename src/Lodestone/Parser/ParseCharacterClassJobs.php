@@ -25,7 +25,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
         
         // loop through roles
         /** @var DomQuery $li */
-        foreach ($this->dom->find('.character__profile__detail')->find('li') as $li)
+        foreach ($this->dom->find('#character .character__content')->find('li') as $li)
         {
             // class name
             $name   = trim($li->find('.character__job__name')->text());
