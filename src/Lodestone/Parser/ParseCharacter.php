@@ -147,7 +147,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             // get category
             // this is a bit buggy for crafters, eg: https://eu.finalfantasyxiv.com/lodestone/character/17650647
             // as it's just looking for "Two-handed" and ignoring things like "Carpenters Secondary"
-            $category   = $isFaceAccessory ? "Facewear" : $node->find('.db-tooltip__item__category')->text();
+            $category   = $isFaceAccessory ? "Miscellany" : $node->find('.db-tooltip__item__category')->text();
             $category   = trim(strip_tags($category));
             $catData    = explode("'", $category);
             $catName    = $catData[0];
@@ -157,7 +157,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             $item->Category = $catName;
     
             // get slot from category
-            $slot = ($i == 0) ? 'MainHand' : $catName;
+            $slot = $isFaceAccessory ? "Facewear" : (($i == 0) ? 'MainHand' : $catName);
     
             // if item is secondary tool or shield, its off-hand
             $slot = (stripos($catSecond, 'secondary tool') !== false) ? 'OffHand' : $slot;
