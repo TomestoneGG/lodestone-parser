@@ -199,16 +199,21 @@ class ParseCharacter extends ParseAbstract implements Parser
             }
     
             // add dye
-            $dye = $node->find('.stain');
-            if (trim($dye->html())) {
-                $dyeUrl  = $dye->find('a')->attr('href');
-                $dyeName = $dye->find('a')->text();
-                $dyeId   = trim(explode("/", $dyeUrl)[5]);
-                
-                $dyeObject = new ItemSimple();
-                $dyeObject->ID   = $dyeId;
-                $dyeObject->Name = $dyeName;
-                $item->Dye = $dyeObject;
+            $dyes = $node->find('.stain');
+            foreach ($dyes as $dye) {
+                if (trim($dye->html())) {
+                    $dyeUrl = $dye->find('a')->attr('href');
+                    $dyeName = $dye->find('a')->text();
+                    $dyeId = trim(explode("/", $dyeUrl)[5]);
+
+                    $dyeObject = new ItemSimple();
+                    $dyeObject->ID = $dyeId;
+                    $dyeObject->Name = $dyeName;
+                    if (!$item->Dye)
+                        $item->Dye = $dyeObject;
+                    if (!$item->Dye2)
+                        $item->Dye2 = $dyeObject;
+                }
             }
     
             // add materia
