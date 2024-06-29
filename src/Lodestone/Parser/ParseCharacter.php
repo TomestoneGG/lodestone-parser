@@ -132,8 +132,10 @@ class ParseCharacter extends ParseAbstract implements Parser
             $lodestoneId = $node->find('.db-tooltip__bt_item_detail a')->attr('href');
             $explodedLodestoneId = explode('/', $lodestoneId);
             $isFaceAccessory = false;
+            $faceLink = null;
             if (count($explodedLodestoneId) < 2) {
-                $lodestoneId = $node->find('.db-tooltip__item-info_faceaccessory a')->attr('href');
+                $faceLink = $node->find('.db-tooltip__item-info_faceaccessory a');
+                $lodestoneId = $faceLink->attr('href');
                 $explodedLodestoneId = explode('/', $lodestoneId);
                 if (count($explodedLodestoneId) >= 2)
                     $isFaceAccessory = true;
@@ -191,6 +193,9 @@ class ParseCharacter extends ParseAbstract implements Parser
             if (trim($creator->html())) {
                 $creator = explode("/", $creator->find('a')->attr('href'));
                 $item->Creator = trim($creator[3]);
+            } else if ($isFaceAccessory) {
+                // Put the item name that created the spectacles in the Creator field.
+                $item->Creator = trim($faceLink->attr('data-tooltip'));
             }
     
             // add dye
