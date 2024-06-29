@@ -131,12 +131,23 @@ class ParseCharacter extends ParseAbstract implements Parser
             // get lodestone id
             $lodestoneId = $node->find('.db-tooltip__bt_item_detail a')->attr('href');
             $explodedLodestoneId = explode('/', $lodestoneId);
+            $isFaceAccessory = false;
+            if (count($explodedLodestoneId) < 2) {
+                $lodestoneId = $node->find('.db-tooltip__item-info_faceaccessory a')->attr('href');
+                $explodedLodestoneId = explode('/', $lodestoneId);
+                if (count($explodedLodestoneId) >= 2)
+                    $isFaceAccessory = true;
+            }
+
+            if (count($explodedLodestoneId) < 2)
+                continue;
+
             $item->ID = trim($explodedLodestoneId[count($explodedLodestoneId) - 2]);
     
             // get category
             // this is a bit buggy for crafters, eg: https://eu.finalfantasyxiv.com/lodestone/character/17650647
             // as it's just looking for "Two-handed" and ignoring things like "Carpenters Secondary"
-            $category   = $node->find('.db-tooltip__item__category')->text();
+            $category   = $isFaceAccessory ? "Facewear" : $node->find('.db-tooltip__item__category')->text();
             $category   = trim(strip_tags($category));
             $catData    = explode("'", $category);
             $catName    = $catData[0];
