@@ -13,5 +13,6 @@ class Item extends AbstractEntity
     public $Mirage;
     public $Creator;
     public $Dye;
+    public $Dye2;
     public $Materia = [];
 }

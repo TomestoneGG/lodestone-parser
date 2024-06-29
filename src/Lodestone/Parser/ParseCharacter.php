@@ -131,12 +131,25 @@ class ParseCharacter extends ParseAbstract implements Parser
             // get lodestone id
             $lodestoneId = $node->find('.db-tooltip__bt_item_detail a')->attr('href');
             $explodedLodestoneId = explode('/', $lodestoneId);
+            $isFaceAccessory = false;
+            $faceLink = null;
+            if (count($explodedLodestoneId) < 2) {
+                $faceLink = $node->find('.db-tooltip__item-info_faceaccessory a');
+                $lodestoneId = $faceLink->attr('href');
+                $explodedLodestoneId = explode('/', $lodestoneId);
+                if (count($explodedLodestoneId) >= 2)
+                    $isFaceAccessory = true;
+            }
+
+            if (count($explodedLodestoneId) < 2)
+                continue;
+
             $item->ID = trim($explodedLodestoneId[count($explodedLodestoneId) - 2]);
     
             // get category
             // this is a bit buggy for crafters, eg: https://eu.finalfantasyxiv.com/lodestone/character/17650647
             // as it's just looking for "Two-handed" and ignoring things like "Carpenters Secondary"
-            $category   = $node->find('.db-tooltip__item__category')->text();
+            $category   = $isFaceAccessory ? "Miscellany" : $node->find('.db-tooltip__item__category')->text();
             $category   = trim(strip_tags($category));
             $catData    = explode("'", $category);
             $catName    = $catData[0];
@@ -146,7 +159,7 @@ class ParseCharacter extends ParseAbstract implements Parser
             $item->Category = $catName;
     
             // get slot from category
-            $slot = ($i == 0) ? 'MainHand' : $catName;
+            $slot = $isFaceAccessory ? "Facewear" : (($i == 0) ? 'MainHand' : $catName);
     
             // if item is secondary tool or shield, its off-hand
             $slot = (stripos($catSecond, 'secondary tool') !== false) ? 'OffHand' : $slot;
@@ -180,19 +193,27 @@ class ParseCharacter extends ParseAbstract implements Parser
             if (trim($creator->html())) {
                 $creator = explode("/", $creator->find('a')->attr('href'));
                 $item->Creator = trim($creator[3]);
+            } else if ($isFaceAccessory) {
+                // Put the item name that created the spectacles in the Creator field.
+                $item->Creator = trim($faceLink->attr('data-tooltip'));
             }
     
             // add dye
-            $dye = $node->find('.stain');
-            if (trim($dye->html())) {
-                $dyeUrl  = $dye->find('a')->attr('href');
-                $dyeName = $dye->find('a')->text();
-                $dyeId   = trim(explode("/", $dyeUrl)[5]);
-                
-                $dyeObject = new ItemSimple();
-                $dyeObject->ID   = $dyeId;
-                $dyeObject->Name = $dyeName;
-                $item->Dye = $dyeObject;
+            $dyes = $node->find('.stain');
+            foreach ($dyes as $dye) {
+                if (trim($dye->html())) {
+                    $dyeUrl = $dye->find('a')->attr('href');
+                    $dyeName = $dye->find('a')->text();
+                    $dyeId = trim(explode("/", $dyeUrl)[5]);
+
+                    $dyeObject = new ItemSimple();
+                    $dyeObject->ID = $dyeId;
+                    $dyeObject->Name = $dyeName;
+                    if (!$item->Dye)
+                        $item->Dye = $dyeObject;
+                    else if (!$item->Dye2)
+                        $item->Dye2 = $dyeObject;
+                }
             }
     
             // add materia
