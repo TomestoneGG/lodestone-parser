@@ -21,9 +21,7 @@ class ParseCharacterAchievements extends ParseAbstract implements Parser
         $achievements = new Achievements();
 
         $achievementList = $this->dom->find('.ldst__achievement');
-        if (!$achievementList)
-            return $achievementList;
-
+       
         /** @var DomQuery $a */
         foreach ($achievementList->find('.entry .entry__achievement') as $a) {
             if ($a->hasClass('entry__achievement--complete')) {
