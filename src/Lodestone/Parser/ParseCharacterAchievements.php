@@ -20,8 +20,10 @@ class ParseCharacterAchievements extends ParseAbstract implements Parser
         $this->setDom($html);
         $achievements = new Achievements();
 
+        $achievementList = $this->dom->find('.ldst__achievement');
+       
         /** @var DomQuery $a */
-        foreach ($this->dom->find('.ldst__achievement .entry .entry__achievement') as $a) {
+        foreach ($achievementList->find('.entry .entry__achievement') as $a) {
             if ($a->hasClass('entry__achievement--complete')) {
                 $obj         = new Achievement();
                 $obj->ID     = explode('/', $a->attr('href'))[6];

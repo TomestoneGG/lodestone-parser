@@ -209,10 +209,7 @@ class ParseCharacter extends ParseAbstract implements Parser
                     $dyeObject = new ItemSimple();
                     $dyeObject->ID = $dyeId;
                     $dyeObject->Name = $dyeName;
-                    if (!$item->Dye)
-                        $item->Dye = $dyeObject;
-                    else if (!$item->Dye2)
-                        $item->Dye2 = $dyeObject;
+                    $item->Dye[] = $dyeObject;
                 }
             }
     

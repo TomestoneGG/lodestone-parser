@@ -18,7 +18,7 @@ class Http
     /**
      * Get Symfony Client
      */
-    private function getClient(string $baseUri = null)
+    private function getClient(?string $baseUri = null)
     {
         return new CurlHttpClient([
             'base_uri' => $baseUri ?: self::BASE_URI,
