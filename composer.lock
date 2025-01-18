@@ -579,12 +579,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/TomestoneGG/DomQuery.git",
-                "reference": "54902eeea7b82743e5ffe062cccfbee521646409"
+                "reference": "76cf54cdf6697fde2aaefd047e0f9c24cfb58444"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TomestoneGG/DomQuery/zipball/54902eeea7b82743e5ffe062cccfbee521646409",
-                "reference": "54902eeea7b82743e5ffe062cccfbee521646409",
+                "url": "https://api.github.com/repos/TomestoneGG/DomQuery/zipball/76cf54cdf6697fde2aaefd047e0f9c24cfb58444",
+                "reference": "76cf54cdf6697fde2aaefd047e0f9c24cfb58444",
                 "shasum": ""
             },
             "require": {
@@ -642,7 +642,7 @@
             "support": {
                 "source": "https://github.com/TomestoneGG/DomQuery/tree/php8"
             },
-            "time": "2025-01-18T00:55:19+00:00"
+            "time": "2025-01-18T01:11:08+00:00"
         },
         {
             "name": "symfony/clock",
