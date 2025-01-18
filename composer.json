@@ -19,7 +19,7 @@
         "nesbot/carbon": "^3.8",
         "symfony/http-client": "^7.2",
         "ramsey/uuid": "^3.8|^4.0",
-        "rct567/dom-query": "^1.1"
+        "rct567/dom-query": "dev-php8"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
@@ -36,5 +36,11 @@
     },
     "scripts": {
         "test": "phpunit"
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/TomestoneGG/DomQuery.git"
+        }
+    ]
 }
