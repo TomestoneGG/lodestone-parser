@@ -5,6 +5,7 @@ namespace Lodestone\Parser;
 use Lodestone\Entity\Character\ClassJob;
 use Lodestone\Entity\Character\ClassJobBozjan;
 use Lodestone\Entity\Character\ClassJobEureka;
+use Lodestone\Entity\Character\ClassJobOccultCrescent;
 use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Game\ClassJobs;
 use Rct567\DomQuery\DomQuery;
@@ -73,58 +74,65 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
 
             $classjobs[] = $role;
         }
-    
-        $elementalIndex = 1;
-    
-        /** @var DomQuery $node */
-    
-        //
-        // Bozjan Southern Front
-        //
-        $bozjan          = new ClassJobBozjan('Resistance Rank');
-        $node            = $this->dom->find('.character__job__list')[0];
-        $fieldname       = trim($node->find('.character__job__name')->text() ?: '');
+
+        $bozjan = $elemental = $crescent = null;
         
-        // if elemental level is the 1st one, they haven't started Bozjan
-        if ($fieldname == 'Elemental Level') {
-            $elementalIndex = 0;
-        } else {
-            $bozjanString    = trim($node->find('.character__job__exp')->text() ?: '');
-            
-            if ($bozjanString) {
-                [$current, $max] = explode('/', $bozjanString);
-                $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
-                //If rank is max (25) then set current Mettle to null instead of an empty string ("")
-                if ($current == "") {
-                    $current = null;
+        for ($i = 0; $i <= 2; $i++) {
+            $node = $this->dom->find('.character__job__list')[$i];
+            $fieldname = trim($node->find('.character__job__name')->text() ?: '');
+
+            if ($fieldname == "Elemental Level") {
+                //
+                // The Forbidden Land, Eureka
+                //
+                $elemental = new ClassJobEureka('Elemental Level');
+                $node = $this->dom->find('.character__job__list')[$elementalIndex];
+
+                $eurekaString = explode('/', $node->find('.character__job__exp')->text() ?: '');
+                $current = $eurekaString[0] ?? '';
+                $max = $eurekaString[1] ?? '';
+
+                $current = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+                $max = filter_var(trim(str_ireplace('-', '', $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+
+                $elemental->Level = (int)$node->find('.character__job__level')->text();
+                $elemental->ExpLevel = $current;
+                $elemental->ExpLevelMax = $max;
+                $elemental->ExpLevelTogo = $max - $current;
+            } else if ($fieldname == "Resistance Rank") {
+                // Bozjan Southern Front
+                $bozjan          = new ClassJobBozjan('Resistance Rank');
+                $bozjanString    = trim($node->find('.character__job__exp')->text() ?: '');
+                if ($bozjanString) {
+                    [$current, $max] = explode('/', $bozjanString);
+                    $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+                    //If rank is max (25) then set current Mettle to null instead of an empty string ("")
+                    if ($current == "") {
+                        $current = null;
+                    }
+
+
+                    $bozjan->Level        = (int)$node->find('.character__job__level')->text();
+                    $bozjan->Mettle       = $current;
                 }
-                
-    
-                $bozjan->Level        = (int)$node->find('.character__job__level')->text();
-                $bozjan->Mettle       = $current;
+            } else if ($fieldname == "Knowledge Level") {
+                // Knowledge Level
+                $crescent          = new ClassJobOccultCrescent('Knowledge Level');
+                $crescentString    = trim($node->find('.character__job__exp')->text() ?: '');
+                if ($crescentString) {
+                    [$current, $max] = explode('/', $crescentString);
+                    $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
+                    //If rank is max (25) then set current Mettle to null instead of an empty string ("")
+                    if ($current == "") {
+                        $current = null;
+                    }
+
+                    $bozjan->Level        = (int)$node->find('.character__job__level')->text();
+                    $bozjan->Knowledge       = $current;
+                }
             }
         }
 
-        //
-        // The Forbidden Land, Eureka
-        //
-        $elemental       = new ClassJobEureka('Elemental Level');
-        $node            = $this->dom->find('.character__job__list')[$elementalIndex];
-        
-        $eurekaString    = explode('/', $node->find('.character__job__exp')->text() ?: '');
-        $current         = $eurekaString[0] ?? '';
-        $max             = $eurekaString[1] ?? '';
-        
-        $current         = filter_var(trim(str_ireplace('-', '', $current)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
-        $max             = filter_var(trim(str_ireplace('-', '', $max)) ?: 0, FILTER_SANITIZE_NUMBER_INT);
-        
-        $elemental->Level        = (int)$node->find('.character__job__level')->text();
-        $elemental->ExpLevel     = $current;
-        $elemental->ExpLevelMax  = $max;
-        $elemental->ExpLevelTogo = $max - $current;
-        
-        // fin
-        
         unset($box);
         unset($node);
 
@@ -132,6 +140,7 @@ class ParseCharacterClassJobs extends ParseAbstract implements Parser
             'classjobs' => $classjobs,
             'elemental' => $elemental,
             'bozjan'    => $bozjan,
+            'crescent'  => $crescent,
         ];
     }
 }
