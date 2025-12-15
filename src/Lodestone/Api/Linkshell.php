@@ -22,7 +22,7 @@ class Linkshell extends ApiAbstract
         ]);
     }
 
-    public function searchCrossWorld(string $name, string $server = null, int $page = 1)
+    public function searchCrossWorld(string $name, ?string $server = null, int $page = 1)
     {
         $name = str_ireplace(self::STRING_FIXES[0], self::STRING_FIXES[1], $name);
 
