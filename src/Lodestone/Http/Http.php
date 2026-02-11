@@ -2,6 +2,7 @@
 
 namespace Lodestone\Http;
 
+use Exception;
 use Lodestone\Exceptions\LodestoneException;
 use Lodestone\Exceptions\LodestoneMaintenanceException;
 use Lodestone\Exceptions\LodestoneNotFoundException;
@@ -9,6 +10,7 @@ use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Parser\Parser;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class Http
 {
@@ -18,7 +20,7 @@ class Http
     /**
      * Get Symfony Client
      */
-    private function getClient(?string $baseUri = null)
+    private function getClient(?string $baseUri = null): CurlHttpClient
     {
         return new CurlHttpClient([
             'base_uri' => $baseUri ?: self::BASE_URI,
@@ -96,13 +98,24 @@ class Http
     }
 
     /**
-     * Settle any async requests
-     * @throws
+     * Settle and process all asynchronous HTTP requests.
+     *
+     * Streams all pending async responses, invokes their associated parsers,
+     * and returns the parsed content keyed by request ID.
+     *
+     * @param string|null $baseURI Optional base URI override for the HTTP client
+     *
+     * @return array<string, mixed> Parsed response data keyed by request_id. If a request fails,
+     *                              the value will be an object with properties:
+     *                              - Error (bool)
+     *                              - StatusCode (int)
+     *
+     * @throws Exception|TransportExceptionInterface If the request system is not in async mode
      */
-    public function settle(?string $baseURI = null)
+    public function settle(?string $baseURI = null): array
     {
         if (RequestConfig::$isAsync === false) {
-            throw new \Exception("Request API is not in async mode. There will be no async requests to settle.");
+            throw new Exception("Request API is not in async mode. There will be no async requests to settle.");
         }
 
         $content   = [];
