@@ -31,7 +31,7 @@ class Request
         $this->endpoint  = $options['endpoint'] ?? '';
 
         // optional
-        $this->baseUri   = $options['base_uri'] ?? null;
+        $this->baseUri   = $options['base_uri'] ?? Api::$baseUri;
         $this->query     = $options['query'] ?? [];
         $this->headers   = $options['headers'] ?? [];
         $this->json      = $options['json'] ?? null;
