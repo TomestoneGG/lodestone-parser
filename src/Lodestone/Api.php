@@ -9,7 +9,14 @@ use Lodestone\Api\{Character, Database, FreeCompany, Linkshell, PvPTeam, Lodesto
 
 class Api
 {
-    private $namespaces = [];
+    public static ?string $baseUri = null;
+
+    public function __construct(?string $baseURI = null)
+    {
+        Api::$baseUri = $baseURI;
+    }
+
+    private array $namespaces = [];
 
     /**
      * will return an existing set namespace or a new one.
@@ -25,7 +32,7 @@ class Api
         return $class;
     }
     
-    public function requestId(string $name)
+    public function requestId(string $name): Api
     {
         AsyncHandler::setRequestId($name);
         return $this;
