@@ -99,14 +99,14 @@ class Http
      * Settle any async requests
      * @throws
      */
-    public function settle()
+    public function settle(?string $baseURI = null)
     {
         if (RequestConfig::$isAsync === false) {
             throw new \Exception("Request API is not in async mode. There will be no async requests to settle.");
         }
 
         $content   = [];
-        $client    = $this->getClient();
+        $client    = $this->getClient($baseURI);
         $responses = AsyncHandler::get();
 
         foreach ($client->stream($responses) as $response => $chunk) {

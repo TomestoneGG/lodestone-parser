@@ -9,11 +9,8 @@ use Lodestone\Api\{Character, Database, FreeCompany, Linkshell, PvPTeam, Lodesto
 
 class Api
 {
-    public static ?string $baseUri = null;
-
-    public function __construct(?string $baseURI = null)
+    public function __construct()
     {
-        Api::$baseUri = $baseURI;
     }
 
     private array $namespaces = [];
