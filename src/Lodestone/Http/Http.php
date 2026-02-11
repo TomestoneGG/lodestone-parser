@@ -10,7 +10,6 @@ use Lodestone\Exceptions\LodestonePrivateException;
 use Lodestone\Parser\Parser;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpClient\CurlHttpClient;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class Http
 {
@@ -110,7 +109,7 @@ class Http
      *                              - Error (bool)
      *                              - StatusCode (int)
      *
-     * @throws Exception|TransportExceptionInterface If the request system is not in async mode
+     * @throws
      */
     public function settle(?string $baseURI = null): array
     {
