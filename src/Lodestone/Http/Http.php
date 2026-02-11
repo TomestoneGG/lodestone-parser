@@ -22,7 +22,8 @@ class Http
     {
         return new CurlHttpClient([
             'base_uri' => $baseUri ?: self::BASE_URI,
-            'timeout'  => self::TIMEOUT
+            'timeout'  => self::TIMEOUT,
+            'max_redirects' => 0
         ]);
     }
 
