@@ -102,8 +102,6 @@ class Http
      * Streams all pending async responses, invokes their associated parsers,
      * and returns the parsed content keyed by request ID.
      *
-     * @param string|null $baseURI Optional base URI override for the HTTP client
-     *
      * @return array<string, mixed> Parsed response data keyed by request_id. If a request fails,
      *                              the value will be an object with properties:
      *                              - Error (bool)
@@ -111,14 +109,14 @@ class Http
      *
      * @throws
      */
-    public function settle(?string $baseURI = null): array
+    public function settle(): array
     {
         if (RequestConfig::$isAsync === false) {
             throw new Exception("Request API is not in async mode. There will be no async requests to settle.");
         }
 
         $content   = [];
-        $client    = $this->getClient($baseURI);
+        $client    = $this->getClient();
         $responses = AsyncHandler::get();
 
         foreach ($client->stream($responses) as $response => $chunk) {
