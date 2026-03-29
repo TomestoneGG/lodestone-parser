@@ -4,6 +4,7 @@ namespace Lodestone\Parser;
 
 use Lodestone\Entity\Character\CrystallineConflictStanding;
 use Rct567\DomQuery\DomQuery;
+use Throwable;
 
 class ParseCrystallineConflictStandings extends ParseAbstract implements Parser
 {
@@ -12,7 +13,7 @@ class ParseCrystallineConflictStandings extends ParseAbstract implements Parser
 
     public function handle(string $html)
     {
-        $this->setDom($html);
+        $this->setStandingsDom($html);
         $this->setList();
 
         /** @var DomQuery $node */
@@ -32,6 +33,7 @@ class ParseCrystallineConflictStandings extends ParseAbstract implements Parser
             $tier = $node->find('.tier img')->attr('alt') ?: $node->find('.tier img')->attr('data-tooltip');
             $obj->Tier = html_entity_decode(trim((string)$tier), ENT_QUOTES, 'UTF-8');
             $obj->Points = $this->getNumericValue($node->find('.points p')->text());
+            $obj->Wins = $this->getNumericValue($node->find('.wins p')->text());
 
             $this->list->Results[] = $obj;
         }
@@ -59,6 +61,40 @@ class ParseCrystallineConflictStandings extends ParseAbstract implements Parser
         $value = trim((string) $value);
 
         return $value === '' ? null : $this->getNumericValue($value);
+    }
+
+    private function setStandingsDom(string $html): void
+    {
+        if (trim($html) === '' || strpos($html, '<') === false) {
+            $this->dom = new DomQuery('<div class="ldst__contents"></div>');
+            return;
+        }
+
+        try {
+            $fullDom = new DomQuery($html);
+        } catch (Throwable $e) {
+            $this->dom = new DomQuery('<div class="ldst__contents"></div>');
+            return;
+        }
+
+        $ccDom = $fullDom->find('.cc-content__wrapper');
+        if ($ccDom->length > 0 && $ccDom->find('.ranking_set')->length > 0) {
+            $this->dom = $ccDom;
+            return;
+        }
+
+        $scopedDom = $fullDom->find('.ldst__contents');
+
+        if ($scopedDom->length > 0 && (
+            $scopedDom->find('.ranking_set')->length > 0 ||
+            $scopedDom->find('.btn__pager__current')->length > 0 ||
+            $scopedDom->find('.parts__total')->length > 0
+        )) {
+            $this->dom = $scopedDom;
+            return;
+        }
+
+        $this->dom = $fullDom;
     }
 
     private function setSinglePagePaginationWhenNeeded()

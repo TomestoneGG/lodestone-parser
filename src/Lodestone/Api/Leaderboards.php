@@ -72,12 +72,23 @@ class Leaderboards extends ApiAbstract
     /**
      * Params: https://na.finalfantasyxiv.com/lodestone/ranking/crystallineconflict/?dcgroup=Light
      */
-    public function crystallineConflict(string $dcgroup, array $params = [])
+    public function crystallineConflict(string $dcgroup, $season = false, array $params = [])
     {
+        $url = "/lodestone/ranking/crystallineconflict/";
+
+        if (is_array($season)) {
+            $params = $season;
+            $season = false;
+        }
+
+        if ($season !== false && is_numeric($season)) {
+            $url .= "result/{$season}/";
+        }
+
         $params['dcgroup'] = $dcgroup;
 
         return $this->handle(ParseCrystallineConflictStandings::class, [
-            'endpoint' => "/lodestone/ranking/crystallineconflict/",
+            'endpoint' => $url,
             'query'    => $params,
         ]);
     }

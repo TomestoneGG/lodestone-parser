@@ -13,6 +13,7 @@ class CrystallineConflictStanding extends AbstractEntity
     public $Avatar;
     public $Tier;
     public $Points = 0;
+    public $Wins = 0;
     public $Position = 0;
     public $PreviousPosition = null;
 }
