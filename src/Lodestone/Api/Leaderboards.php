@@ -3,6 +3,7 @@
 namespace Lodestone\Api;
 
 use Lodestone\Parser\ParseCharacter;
+use Lodestone\Parser\ParseCrystallineConflictStandings;
 
 class Leaderboards extends ApiAbstract
 {
@@ -42,6 +43,41 @@ class Leaderboards extends ApiAbstract
     {
         return $this->handle(ParseCharacter::class, [
             'endpoint' => "/lodestone/ranking/deepdungeon2",
+            'query'    => $params,
+        ]);
+    }
+
+    /**
+     * Params: http://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon3
+     */
+    public function ddEurekaOrthos(array $params = [])
+    {
+        return $this->handle(ParseCharacter::class, [
+            'endpoint' => "/lodestone/ranking/deepdungeon3",
+            'query'    => $params,
+        ]);
+    }
+
+    /**
+     * Params: http://eu.finalfantasyxiv.com/lodestone/ranking/deepdungeon4
+     */
+    public function ddPilgrimTraverse(array $params = [])
+    {
+        return $this->handle(ParseCharacter::class, [
+            'endpoint' => "/lodestone/ranking/deepdungeon4",
+            'query'    => $params,
+        ]);
+    }
+
+    /**
+     * Params: https://na.finalfantasyxiv.com/lodestone/ranking/crystallineconflict/?dcgroup=Light
+     */
+    public function crystallineConflict(string $dcgroup, array $params = [])
+    {
+        $params['dcgroup'] = $dcgroup;
+
+        return $this->handle(ParseCrystallineConflictStandings::class, [
+            'endpoint' => "/lodestone/ranking/crystallineconflict/",
             'query'    => $params,
         ]);
     }

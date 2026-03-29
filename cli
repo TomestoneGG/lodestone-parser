@@ -165,5 +165,54 @@ switch ($cliCommandType) {
                 }
                 print_r($results);
                 break;
+
+            case "eo":
+                $results = $api->leaderboards()->ddEurekaOrthos();
+                if (isset($argv[2]) == "-file") {
+                    $file = fopen("{$argv[3]}.json", 'w');
+                    fwrite($file, json_encode($results));
+                    fclose($file);
+                    break;
+                }
+                print_r($results);
+                break;
+
+            case "pt":
+                $results = $api->leaderboards()->ddPilgrimTraverse();
+                if (isset($argv[2]) == "-file") {
+                    $file = fopen("{$argv[3]}.json", 'w');
+                    fwrite($file, json_encode($results));
+                    fclose($file);
+                    break;
+                }
+                print_r($results);
+                break;
+
+            case "cc":
+                if (!isset($argv[2])) {
+                    print_r("INVALID ARGUMENT: Expected DC Group\n");
+                    break;
+                }
+
+                $params = [];
+                if (isset($argv[3]) && $argv[3] !== "-file") {
+                    $params['rank_type'] = $argv[3];
+                }
+
+                if (isset($argv[4]) && $argv[4] !== "-file") {
+                    $params['page'] = $argv[4];
+                }
+
+                $results = $api->leaderboards()->crystallineConflict($argv[2], $params);
+                $fileFlagIndex = array_search('-file', $argv, true);
+                if ($fileFlagIndex !== false && isset($argv[$fileFlagIndex + 1])) {
+                    $file = fopen("{$argv[$fileFlagIndex + 1]}.json", 'w');
+                    fwrite($file, json_encode($results));
+                    fclose($file);
+                    break;
+                }
+
+                print_r($results);
+                break;
         }
 }

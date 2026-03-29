@@ -50,6 +50,8 @@ final class BasicTest extends TestCase
         self::assertNotEmpty($api->leaderboards()->feast());
         self::assertNotEmpty($api->leaderboards()->ddPalaceOfTheDead());
         self::assertNotEmpty($api->leaderboards()->ddHeavenOnHigh());
+        self::assertNotEmpty($api->leaderboards()->ddEurekaOrthos());
+        self::assertNotEmpty($api->leaderboards()->ddPilgrimTraverse());
 
     }
 }

@@ -12,7 +12,7 @@ Parse lodestone for those juicy details
 |`linkshell`|`<id>`|Prints a linkshell parse.|
 |`achievements`|`<id>`|Prints a characters achievement parse.|
 |`banners`|none|Prints the currently displayed banners on the lodestone homepage.|
-|`leaderboards`|`feast`,`potd`,`hoh`|Prints the current leaderboard parse for The Feast, Palace of The Dead, or Heaven on High.|
+|`leaderboards`|`feast`,`potd`,`hoh`,`eo`,`pt`,`cc <dcgroup> [rank_type] [page]`|Prints the current leaderboard parse for The Feast, Palace of The Dead, Heaven on High, Eureka Orthos, Pilgrim's Traverse, or Crystalline Conflict.|
 
 All commands accept a flag to print the returned blob to a json file.
 Example
