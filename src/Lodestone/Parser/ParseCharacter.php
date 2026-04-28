@@ -245,9 +245,9 @@ class ParseCharacter extends ParseAbstract implements Parser
     private function parseProfileBasic()
     {
         // id
-        $lodestoneId = $this->dom->find('#character a')->attr('href');
+        $lodestoneId = $this->dom->find('#character a')->attr('href') ?? '';
         $explodedLodestoneId = explode('/', $lodestoneId);
-        $this->profile->ID = trim($explodedLodestoneId[3]);
+        $this->profile->ID = trim($explodedLodestoneId[3] ?? '');
 
         // name
         $name = $this->dom->find('.frame__chara__name')->eq(0)->html();
@@ -272,7 +272,7 @@ class ParseCharacter extends ParseAbstract implements Parser
         // avatar
         $avatar = $this->dom->find('#character .frame__chara__face img')->attr('src');
         $this->profile->Avatar   = $avatar;
-        $this->profile->Portrait = str_ireplace('c0.jpg', 'l0.jpg', $avatar);
+        $this->profile->Portrait = str_ireplace('c0.jpg', 'l0.jpg', $avatar ?? '');
 
     }
     
