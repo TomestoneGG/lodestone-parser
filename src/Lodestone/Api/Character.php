@@ -27,10 +27,13 @@ class Character extends ApiAbstract
         ]);
     }
 
-    public function get(int $id)
+    public function get(int $id, bool $fetchGear = false)
     {
         return $this->handle(ParseCharacter::class, [
             'endpoint' => "/lodestone/character/{$id}",
+            'user_data' => [
+                'fetch_gear' => $fetchGear,
+            ],
         ]);
     }
 

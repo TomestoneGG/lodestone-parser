@@ -22,6 +22,13 @@ class ParseCharacter extends ParseAbstract implements Parser
     
     /** @var CharacterProfile */
     private $profile;
+    /** @var bool */
+    private $fetchGear = false;
+
+    public function __construct(array $options = [])
+    {
+        $this->fetchGear = $options['fetch_gear'] ?? false;
+    }
     
     /**
      * Handle Character parsing
@@ -37,7 +44,9 @@ class ParseCharacter extends ParseAbstract implements Parser
         // parse main profile
         $this->parseProfile();
         $this->parseAttributes();
-        $this->parseEquipGear();
+        if ($this->fetchGear) {
+            $this->parseEquipGear();
+        }
 
         return $this->profile;
     }
