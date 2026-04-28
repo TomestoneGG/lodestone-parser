@@ -49,7 +49,8 @@ class ClassJobs
         39 => 'reaper',
         40 => 'sage',
         41 => 'viper',
-        42 => 'pictomancer'
+        42 => 'pictomancer',
+        43 => 'beastmaster'
     ];
 
     /**
@@ -102,6 +103,7 @@ class ClassJobs
         40 => [ 40, 40, ],
         41 => [ 41, 41, ],
         42 => [ 42, 42, ],
+        43 => [ 43, 43, ],
     ];
     
     public static function findGameData($name)
