@@ -10,6 +10,8 @@ class ListView extends AbstractEntity
     public $Pagination;
     /** @var array */
     public $Results = [];
+    /** @var object|null */
+    public $Profile;
     
     public function __construct()
     {

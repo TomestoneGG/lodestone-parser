@@ -10,8 +10,8 @@ class ParseLodestoneWorldStatus extends ParseAbstract implements Parser
 
     public function handle(string $html)
     {
-        // set dom
-        $this->setDom($html);
+        $dom = new DomQuery($html);
+        $this->dom = $dom->find('[class^="ldst__contents"]');
 
         /** @var DomQuery $node */
         $arr = [];
