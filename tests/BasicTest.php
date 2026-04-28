@@ -26,6 +26,7 @@ final class BasicTest extends TestCase
 
         self::assertNotEmpty($api->character()->friends($user));
         self::assertNotEmpty($api->character()->following($user));
+        self::assertNotEmpty($api->character()->classjobs($user));
         // self::assertTrue($api->character()->achievements($user)->PointsTotal > 0); AHHHHHHHHHHHHHHHH
         // self::assertNotEmpty($api->getCharacterAchievementsFull($user)->Achievements); This may not be relevant anymore
         self::assertSame($expectedfc, $api->FreeCompany()->get($fc)->Name);
