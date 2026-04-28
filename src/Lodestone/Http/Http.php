@@ -40,6 +40,8 @@ class Http
         $request->userData['request_url'] = $request->baseUri . $request->endpoint;
         $request->userData['request_id']  = AsyncHandler::$requestId ?: Uuid::uuid4()->toString();
         $request->userData['parser']      = $parser;
+        $request->userData['request_base_uri'] = $request->baseUri ?: self::BASE_URI;
+        $request->userData['request_headers'] = $request->headers;
 
         // perform request
         $response = $client->request($request->method, $request->endpoint, [

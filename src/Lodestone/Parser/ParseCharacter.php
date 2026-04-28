@@ -9,7 +9,9 @@ use Lodestone\Entity\Character\Guardian;
 use Lodestone\Entity\Character\Item;
 use Lodestone\Entity\Character\ItemSimple;
 use Lodestone\Entity\Character\Town;
+use Lodestone\Http\Http;
 use Rct567\DomQuery\DomQuery;
+use Symfony\Component\HttpClient\CurlHttpClient;
 
 class ParseCharacter extends ParseAbstract implements Parser
 {
@@ -19,15 +21,40 @@ class ParseCharacter extends ParseAbstract implements Parser
     const TX_NAMEDAY        = ['Nameday', 'Guardian', 'Namenstag', 'Schutzgott', 'Date de naissance', 'Divinité', '誕生日', '守護神'];
     const TX_TOWN           = ['City-state', 'Stadtstaat', 'Cité de départ', '開始都市'];
     const TX_GRANDCOMPANY   = ['Grand Company', 'Staatliche Gesellschaft', 'Grande compagnie', '所属グランドカンパニー'];
+    const GEAR_SLOT_MAP     = [
+        0  => 'MainHand',
+        1  => 'OffHand',
+        2  => 'Head',
+        3  => 'Body',
+        4  => 'Hands',
+        5  => 'Waist',
+        6  => 'Legs',
+        7  => 'Feet',
+        8  => 'Earrings',
+        9  => 'Necklace',
+        10 => 'Bracelets',
+        11 => 'Ring1',
+        12 => 'Ring2',
+        13 => 'SoulCrystal',
+    ];
     
     /** @var CharacterProfile */
     private $profile;
     /** @var bool */
     private $fetchGear = false;
+    /** @var array<string, string> */
+    private $gearTooltips = [];
+    /** @var string */
+    private $requestBaseUri = Http::BASE_URI;
+    /** @var array */
+    private $requestHeaders = [];
 
     public function __construct(array $options = [])
     {
         $this->fetchGear = $options['fetch_gear'] ?? false;
+        $this->gearTooltips = $options['gear_tooltips'] ?? [];
+        $this->requestBaseUri = $options['request_base_uri'] ?? Http::BASE_URI;
+        $this->requestHeaders = $options['request_headers'] ?? [];
     }
     
     /**
@@ -119,133 +146,253 @@ class ParseCharacter extends ParseAbstract implements Parser
      */
     private function parseEquipGear()
     {
+        $gearWrappers = $this->dom->find('.character__view')->eq(0)->find('.js__db_tooltip');
+        if ($gearWrappers->length > 0) {
+            $this->parseLazyTooltipGear($gearWrappers);
+            return;
+        }
+
         /**
          * @var int $i
          * @var DomQuery $node
          */
         foreach ($this->dom->find('.character__view')->eq(0)->find('.item_detail_box') as $i => $node) {
-            $item = new Item();
-    
-            // get name
-            $name = $node->find('.db-tooltip__item__name')->text();
-    
-            // If this slot has no item name html
-            // it's safe to assume empty slot
-            if (!$name) {
+            $item = $this->parseGearItemNode($node, $i === 0 ? 'MainHand' : null);
+            if ($item) {
+                $this->profile->GearSet['Gear'][$item->Slot] = $item;
+            }
+        }
+    }
+
+    private function parseLazyTooltipGear(DomQuery $gearWrappers): void
+    {
+        $tooltipHtmlByUrl = $this->resolveTooltipHtmlByUrl($gearWrappers);
+
+        /** @var DomQuery $wrapper */
+        foreach ($gearWrappers as $wrapper) {
+            $slot = $this->getSlotFromWrapper($wrapper);
+            if ($slot === null) {
                 continue;
             }
-    
-            $item->Name = strip_tags($name);
-    
-            // get lodestone id
-            $lodestoneId = $node->find('.db-tooltip__bt_item_detail a')->attr('href');
-            $explodedLodestoneId = explode('/', $lodestoneId);
-            $isFaceAccessory = false;
-            $faceLink = null;
-            if (count($explodedLodestoneId) < 2) {
-                $faceLink = $node->find('.db-tooltip__item-info_faceaccessory a');
-                $lodestoneId = $faceLink->attr('href');
-                $explodedLodestoneId = explode('/', $lodestoneId);
-                if (count($explodedLodestoneId) >= 2)
-                    $isFaceAccessory = true;
+
+            $tooltipNode = $this->getInlineTooltipNode($wrapper);
+            if ($tooltipNode === null) {
+                $url = $wrapper->attr('data-lazy_load_url');
+                $tooltipHtml = $tooltipHtmlByUrl[$url] ?? null;
+                $tooltipNode = $tooltipHtml ? $this->createTooltipNode($tooltipHtml) : null;
             }
 
-            if (count($explodedLodestoneId) < 2)
+            if ($tooltipNode === null) {
                 continue;
+            }
 
-            $item->ID = trim($explodedLodestoneId[count($explodedLodestoneId) - 2]);
-    
-            // get category
-            // this is a bit buggy for crafters, eg: https://eu.finalfantasyxiv.com/lodestone/character/17650647
-            // as it's just looking for "Two-handed" and ignoring things like "Carpenters Secondary"
-            $category   = $isFaceAccessory ? "Miscellany" : $node->find('.db-tooltip__item__category')->text();
-            $category   = trim(strip_tags($category));
-            $catData    = explode("'", $category);
-            $catName    = $catData[0];
-            $catSecond  = $catData[1] ?? '';
-            $catName    = trim(str_ireplace(['Two-handed', 'One-handed'], '', $catName));
-            $catName    = ucwords(strtolower($catName));
-            $item->Category = $catName;
-    
-            // get slot from category
-            $slot = $isFaceAccessory ? "Facewear" : (($i == 0) ? 'MainHand' : $catName);
-    
-            // if item is secondary tool or shield, its off-hand
+            $item = $this->parseGearItemNode($tooltipNode, $slot);
+            if ($item) {
+                $this->profile->GearSet['Gear'][$item->Slot] = $item;
+            }
+        }
+    }
+
+    private function resolveTooltipHtmlByUrl(DomQuery $gearWrappers): array
+    {
+        $urls = [];
+
+        /** @var DomQuery $wrapper */
+        foreach ($gearWrappers as $wrapper) {
+            if ($this->getInlineTooltipNode($wrapper) !== null) {
+                continue;
+            }
+
+            $url = $wrapper->attr('data-lazy_load_url');
+            if ($url) {
+                $urls[$url] = $url;
+            }
+        }
+
+        if (empty($urls)) {
+            return [];
+        }
+
+        if (!empty($this->gearTooltips)) {
+            return array_intersect_key($this->gearTooltips, $urls);
+        }
+
+        return $this->fetchTooltipHtml(array_values($urls));
+    }
+
+    private function fetchTooltipHtml(array $urls): array
+    {
+        $client = new CurlHttpClient([
+            'base_uri' => $this->requestBaseUri ?: Http::BASE_URI,
+            'timeout'  => Http::TIMEOUT,
+        ]);
+
+        $responses = [];
+        foreach ($urls as $url) {
+            $responses[$url] = $client->request('GET', $url, [
+                'headers' => $this->requestHeaders,
+            ]);
+        }
+
+        $content = [];
+        foreach ($client->stream($responses) as $response => $chunk) {
+            if (!$chunk->isLast()) {
+                continue;
+            }
+
+            $url = array_search($response, $responses, true);
+            if ($url === false || $response->getStatusCode() !== 200) {
+                continue;
+            }
+
+            $content[$url] = $response->getContent();
+        }
+
+        return $content;
+    }
+
+    private function getInlineTooltipNode(DomQuery $wrapper): ?DomQuery
+    {
+        $node = $wrapper->find('.item_detail_box')->eq(0);
+        if (!$node->length) {
+            return null;
+        }
+
+        return trim((string) $node->find('.db-tooltip__item__name')->text()) !== '' ? $node : null;
+    }
+
+    private function createTooltipNode(string $html): ?DomQuery
+    {
+        $dom = new DomQuery($html);
+        $node = $dom->find('.item_detail_box')->eq(0);
+
+        if ($node->length) {
+            return $node;
+        }
+
+        return $dom->length ? $dom : null;
+    }
+
+    private function getSlotFromWrapper(DomQuery $wrapper): ?string
+    {
+        $url = $wrapper->attr('data-lazy_load_url') ?? '';
+        if (preg_match('/\/tooltip\/(\d+)$/', $url, $match)) {
+            return self::GEAR_SLOT_MAP[(int) $match[1]] ?? null;
+        }
+
+        return null;
+    }
+
+    private function parseGearItemNode(DomQuery $node, ?string $slotHint = null): ?Item
+    {
+        $item = new Item();
+
+        $name = $node->find('.db-tooltip__item__name')->text();
+        if (!$name) {
+            return null;
+        }
+
+        $item->Name = strip_tags($name);
+
+        $lodestoneId = $node->find('.db-tooltip__bt_item_detail a')->attr('href');
+        $explodedLodestoneId = explode('/', (string) $lodestoneId);
+        $isFaceAccessory = false;
+        $faceLink = null;
+        if (count($explodedLodestoneId) < 2) {
+            $faceLink = $node->find('.db-tooltip__item-info_faceaccessory a');
+            $lodestoneId = $faceLink->attr('href');
+            $explodedLodestoneId = explode('/', (string) $lodestoneId);
+            if (count($explodedLodestoneId) >= 2) {
+                $isFaceAccessory = true;
+            }
+        }
+
+        if (count($explodedLodestoneId) < 2) {
+            return null;
+        }
+
+        $item->ID = trim($explodedLodestoneId[count($explodedLodestoneId) - 2]);
+
+        $category = $isFaceAccessory ? 'Miscellany' : $node->find('.db-tooltip__item__category')->text();
+        $category = trim(strip_tags((string) $category));
+        $catData = explode("'", $category);
+        $catName = $catData[0];
+        $catSecond = $catData[1] ?? '';
+        $catName = trim(str_ireplace(['Two-handed', 'One-handed'], '', $catName));
+        $catName = ucwords(strtolower($catName));
+        $item->Category = $catName;
+
+        $slot = $slotHint ?: ($isFaceAccessory ? 'Facewear' : $catName);
+        if (!$slotHint) {
             $slot = (stripos($catSecond, 'secondary tool') !== false) ? 'OffHand' : $slot;
-            $slot = ($slot == 'Shield') ? 'OffHand' : $slot;
-    
-            // if item is a ring, check if its ring 1 or 2
-            if ($slot == 'Ring') {
+            $slot = ($slot === 'Shield') ? 'OffHand' : $slot;
+            if ($slot === 'Ring') {
                 $slot = isset($this->profile->GearSet['Gear']['Ring1']) ? 'Ring2' : 'Ring1';
             }
-    
-            // save slot
-            $slot = str_ireplace(' ', '', $slot);
-            $item->Slot = $slot;
-    
-            // add mirage
-            $mirage = $node->find('.db-tooltip__item__mirage');
-            if (trim($mirage->html())) {
-                $lodestoneId = $mirage->find('a')->attr('href');
-                $lodestoneId = trim(explode('/', $lodestoneId)[5]);
-
-                // setup mirage item
-                $mirageItem = new ItemSimple();
-                $mirageItem->ID   = $lodestoneId;
-                $mirageItem->Name = $mirage->find('p')->text();;
-        
-                $item->Mirage = $mirageItem;
-            }
-    
-            // add creator
-            $creator = $node->find('.db-tooltip__signature-character');
-            if (trim($creator->html())) {
-                $creator = explode("/", $creator->find('a')->attr('href'));
-                $item->Creator = trim($creator[3]);
-            } else if ($isFaceAccessory) {
-                // Put the item name that created the spectacles in the Creator field.
-                $item->Creator = trim($faceLink->attr('data-tooltip'));
-            }
-    
-            // add dye
-            $dyes = $node->find('.stain');
-            foreach ($dyes as $dye) {
-                if (trim($dye->html())) {
-                    $dyeUrl = $dye->find('a')->attr('href');
-                    $dyeName = $dye->find('a')->text();
-                    $dyeId = trim(explode("/", $dyeUrl)[5]);
-
-                    $dyeObject = new ItemSimple();
-                    $dyeObject->ID = $dyeId;
-                    $dyeObject->Name = $dyeName;
-                    $item->Dye[] = $dyeObject;
-                }
-            }
-    
-            // add materia
-            $materiaNodes = $node->find('.db-tooltip__materia');
-            if (trim($materiaNodes->html())) {
-                if ($materiaNodes = $materiaNodes->find('li')) {
-                    /** @var DomQuery $mnode */
-                    foreach ($materiaNodes as $mnode) {
-                        $mhtml = $mnode->find('.db-tooltip__materia__txt')->html();
-                        if (!$mhtml) {
-                            continue;
-                        }
-                
-                        $mdetails = explode('<br>', html_entity_decode($mhtml));
-                        if (empty($mdetails[1])) {$mdetails[1] = '';}
-                
-                        $materiaObject = new ItemSimple();
-                        $materiaObject->Name  = trim(strip_tags($mdetails[0]));
-                        $materiaObject->Value = trim(strip_tags($mdetails[1]));
-                        $item->Materia[] = $materiaObject;
-                    }
-                }
-            }
-            
-            $this->profile->GearSet['Gear'][$slot] = $item;
         }
+
+        $item->Slot = str_ireplace(' ', '', $slot);
+
+        $mirage = $node->find('.db-tooltip__item__mirage');
+        if (trim((string) $mirage->html())) {
+            $mirageId = $mirage->find('a')->attr('href');
+            $mirageId = trim(explode('/', (string) $mirageId)[5] ?? '');
+
+            $mirageItem = new ItemSimple();
+            $mirageItem->ID = $mirageId;
+            $mirageItem->Name = $mirage->find('p')->text();
+            $item->Mirage = $mirageItem;
+        }
+
+        $creator = $node->find('.db-tooltip__signature-character');
+        if (trim((string) $creator->html())) {
+            $creator = explode("/", (string) $creator->find('a')->attr('href'));
+            $item->Creator = trim($creator[3] ?? '');
+        } elseif (trim((string) $node->find('.db-tooltip__info_text a')->text())) {
+            $creator = explode("/", (string) $node->find('.db-tooltip__info_text a')->attr('href'));
+            $item->Creator = trim($creator[3] ?? '');
+        } elseif ($isFaceAccessory) {
+            $item->Creator = trim((string) $faceLink->attr('data-tooltip'));
+        }
+
+        $dyes = $node->find('.stain');
+        foreach ($dyes as $dye) {
+            if (trim((string) $dye->html())) {
+                $dyeUrl = $dye->find('a')->attr('href');
+                $dyeName = $dye->find('a')->text();
+                $dyeId = trim(explode("/", (string) $dyeUrl)[5] ?? '');
+
+                $dyeObject = new ItemSimple();
+                $dyeObject->ID = $dyeId;
+                $dyeObject->Name = $dyeName;
+                $item->Dye[] = $dyeObject;
+            }
+        }
+
+        $materiaNodes = $node->find('.db-tooltip__materia');
+        if (trim((string) $materiaNodes->html())) {
+            if ($materiaNodes = $materiaNodes->find('li')) {
+                /** @var DomQuery $mnode */
+                foreach ($materiaNodes as $mnode) {
+                    $mhtml = $mnode->find('.db-tooltip__materia__txt')->html();
+                    if (!$mhtml) {
+                        continue;
+                    }
+
+                    $mdetails = preg_split('/<br\s*\/?>/i', html_entity_decode($mhtml));
+                    if (empty($mdetails[1])) {
+                        $mdetails[1] = '';
+                    }
+
+                    $materiaObject = new ItemSimple();
+                    $materiaObject->Name  = trim(strip_tags($mdetails[0]));
+                    $materiaObject->Value = trim(strip_tags($mdetails[1]));
+                    $item->Materia[] = $materiaObject;
+                }
+            }
+        }
+
+        return $item;
     }
     
     /**
