@@ -25,7 +25,7 @@ class ParseLinkshellCWMembers extends ParseAbstract implements Parser
 		// set linkshell name
 		$this->list->Profile = (object)[
 			'Name'   => trim($namedata[0]),
-			'Server' => trim($namedata[1] ?? '')
+			'Server' => trim($this->dom->find('.heading__cwls__dcname')->text())
 		];
 
 		// parse list
